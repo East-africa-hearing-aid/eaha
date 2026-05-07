@@ -1,0 +1,105 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: "Suisse_Intl_Bold";
+  src: url("/fonts/Suisse_Intl_Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Suisse_Intl_Book";
+  src: url("/fonts/Suisse_Intl_Book.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Suisse_Intl_Medium";
+  src: url("/fonts/Suisse_Intl_Medium.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Suisse_Intl_Mono";
+  src: url("/fonts/Suisse_Intl_Mono.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Suisse_Intl_Regular";
+  src: url("/fonts/Suisse_Intl_Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Suisse_Intl_Light";
+  src: url("/fonts/Suisse_Intl_Light.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --font-suisse-bold: "Suisse_Intl_Bold", sans-serif;
+  --font-suisse-book: "Suisse_Intl_Book", sans-serif;
+  --font-suisse-medium: "Suisse_Intl_Medium", sans-serif;
+  --font-suisse-mono: "Suisse_Intl_Mono", monospace;
+  --font-suisse-regular: "Suisse_Intl_Regular", sans-serif;
+  --font-suisse-light: "Suisse_Intl_Light", sans-serif;
+}
+
+
+@theme {
+  --color-primary: #ff6633;
+  --color-background: #1a2121;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+.font-suisse-bold {
+  font-family: var(--font-suisse-bold);
+}
+
+.font-suisse-book {
+  font-family: var(--font-suisse-book);
+}
+
+.font-suisse-medium {
+  font-family: var(--font-suisse-medium);
+}
+
+.font-suisse-mono {
+  font-family: var(--font-suisse-mono);
+}
+
+.font-suisse-regular {
+  font-family: var(--font-suisse-regular);
+}
+
+.font-suisse-light {
+  font-family: var(--font-suisse-light);
+}
+
+.wave {
+  animation: wave 1s linear infinite;
+}
+@keyframes wave {
+  0%,
+  100% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1);
+  }
+}

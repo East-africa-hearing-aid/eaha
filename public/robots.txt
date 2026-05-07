@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+
+# Block access to admin areas
+Disallow: /admin/
+Disallow: /api/private/
+Disallow: /_next/static/
+Disallow: /node_modules/
+
+# Allow access to CSS and JS
+Allow: /_next/static/css/
+Allow: /_next/static/js/
+
+# Sitemap
+Sitemap: https://eaha.et/sitemap.xml
+
+# Crawl delay (optional, some bots respect this)
+Crawl-delay: 1
