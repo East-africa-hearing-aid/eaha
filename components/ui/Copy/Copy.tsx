@@ -3,10 +3,9 @@ import "./Copy.css";
 import React, { useRef } from "react";
 import gsap from "gsap";
 import { SplitText } from "gsap/SplitText";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 
-gsap.registerPlugin(SplitText, ScrollTrigger);
+gsap.registerPlugin(SplitText);
 
 export default function Copy({ children, animateOnScroll = true, delay = 0 }: { children: React.ReactElement, animateOnScroll?: boolean, delay?: number }) {
   const containerRef = useRef<HTMLElement>(null);
@@ -20,8 +19,10 @@ export default function Copy({ children, animateOnScroll = true, delay = 0 }: { 
       if (!containerRef.current) return;
 
       const container = containerRef.current;
+      let observer: IntersectionObserver | null = null;
+      let tween: gsap.core.Tween | null = null;
 
-      const initializeSplitText = async () => {
+      const initializeSplitText = () => {
 
         splitRefs.current = [];
         lines.current = [];
@@ -69,24 +70,38 @@ export default function Copy({ children, animateOnScroll = true, delay = 0 }: { 
           delay: delay,
         };
 
-        if (animateOnScroll) {
-          gsap.to(lines.current, {
-            ...animationProps,
-            scrollTrigger: {
-              trigger: container,
-              start: "top 90%",
-              once: true,
-            },
-          });
-          requestAnimationFrame(() => ScrollTrigger.refresh());
-        } else {
-          gsap.to(lines.current, animationProps);
+        const playAnimation = () => {
+          if (tween) return;
+          tween = gsap.to(lines.current, animationProps);
+        };
+
+        if (!animateOnScroll) {
+          playAnimation();
+          return;
         }
+
+        observer = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (entry.isIntersecting) {
+                playAnimation();
+                observer?.disconnect();
+                observer = null;
+                break;
+              }
+            }
+          },
+          { rootMargin: "0px 0px -10% 0px", threshold: 0 }
+        );
+
+        observer.observe(container);
       };
 
       initializeSplitText();
 
       return () => {
+        observer?.disconnect();
+        tween?.kill();
         splitRefs.current.forEach((split) => {
           if (split) {
             split.revert();

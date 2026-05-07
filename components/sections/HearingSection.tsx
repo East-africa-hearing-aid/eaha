@@ -14,22 +14,22 @@ import HearingQuiz from './HearingQuiz';
 
 const audioFiles = [
     {
-        src: '/Audio/audio1.mp3',
+        src: '/Audio/pink-noise.mp3',
         icon: <BsSoundwave />,
         name: 'Noise',
-        description: "This mode allows you to conduct a hearing test through the usage of white noise."
+        description: "This mode allows you to conduct a hearing test through the usage of pink noise."
     },
     {
-        src: '/Audio/audio2.mp3',
+        src: '/Audio/words.mp3',
         icon: <PiTextAaLight />,
         name: 'Word',
-        description: "This mode allows you to conduct a hearing test through the usage of words."
+        description: "This mode allows you to conduct a hearing test through the usage of spoken words."
     },
     {
-        src: '/Audio/audio2.mp3',
+        src: '/Audio/frequency-sweep.mp3',
         icon: <TbWaveSine />,
         name: 'Frequencies',
-        description: "This mode allows you to conduct a hearing test through the usage of frequencies."
+        description: "This mode sweeps from 125 Hz to 8 kHz so you can hear which frequencies are harder to detect."
     },
 ];
 
