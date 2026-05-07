@@ -1,52 +1,52 @@
 "use client"
 import gsap from 'gsap';
-import { useEffect, useState } from 'react';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useLayoutEffect, useState } from 'react';
 import Preloader from '../lib/Preloader';
 import FindTheRightFitButton from '../ui/FindTheRightFitButton';
 import TileShader from '../ui/ShaderPlane';
 import FractalGlass from '../ui/glass/FractalGlass';
 import Copy from '../ui/Copy/Copy';
 
+gsap.registerPlugin(ScrollTrigger);
+
 const Landing = () => {
-  const [loading, setLoading] = useState(true);
   const [showPreloader, setShowPreloader] = useState(true);
 
-  useEffect(() => {
-    // Reset states on mount to ensure clean state
-    setLoading(true);
-    setShowPreloader(true);
+  useLayoutEffect(() => {
+    const preloaderShown =
+      typeof window !== 'undefined' &&
+      sessionStorage.getItem('preloaderShown');
 
-    const preloaderShown = sessionStorage.getItem("preloaderShown");
+    if (preloaderShown) {
+      setShowPreloader(false);
+    }
+
+    if (typeof window !== 'undefined') {
+      window.scrollTo(0, 0);
+    }
 
     if (!preloaderShown) {
-      setTimeout(() => {
-        setLoading(false);
-      }, 0);
       gsap
         .timeline()
-        .from(".landingText", {
+        .from('.landingText', {
           autoAlpha: 1,
           duration: 5,
           delay: 0.5,
         })
-        .eventCallback("onComplete", () => {
-          sessionStorage.setItem("preloaderShown", "true");
+        .eventCallback('onComplete', () => {
+          sessionStorage.setItem('preloaderShown', 'true');
         });
-    } else {
-      gsap.to(".main-main-preloader", {
-        autoAlpha: 0,
-        duration: 1,
-        ease: "power2.inOut",
-        display: "none",
-      });
-      setLoading(false);
-      setShowPreloader(false);
     }
 
-    // Cleanup function to reset GSAP targets
+    const refreshId = requestAnimationFrame(() => {
+      ScrollTrigger.refresh();
+    });
+
     return () => {
-      gsap.killTweensOf(".landingText");
-      gsap.killTweensOf(".main-main-preloader");
+      cancelAnimationFrame(refreshId);
+      gsap.killTweensOf('.landingText');
+      gsap.killTweensOf('.main-main-preloader');
     };
   }, []);
 

@@ -77,7 +77,7 @@ function TestimonialModal({
 const avatars = [
     "/Images/Testimonial/1.jpg",
     "/Images/Testimonial/2.jpg",
-    "/Images/Testimonial/3.jpg",
+    "/Images/Testimonial/03.jpg",
     "/Images/Testimonial/afomia.jpg",
     "/Images/Testimonial/tigist.jpg",
     "/Images/Testimonial/kid.jpg",

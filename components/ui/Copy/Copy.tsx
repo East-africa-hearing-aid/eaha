@@ -78,6 +78,7 @@ export default function Copy({ children, animateOnScroll = true, delay = 0 }: { 
               once: true,
             },
           });
+          requestAnimationFrame(() => ScrollTrigger.refresh());
         } else {
           gsap.to(lines.current, animationProps);
         }
