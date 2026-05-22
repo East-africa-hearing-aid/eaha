@@ -67,7 +67,7 @@ export default function BookContent() {
 
                 {/* Phone number boxes */}
                 <div className="flex gap-4 mb-8">
-                    {["+251 911 523 444", "+251 912 501 599"].map((num, i) => (
+                    {["+251 911 523 444", "+251 912 501 599", "+251 114 552 941"].map((num, i) => (
                         <div key={i} className="px-5 py-3">
                             <span className="font-suisse-mono text-sm text-gray-700 tracking-wide">
                                 {num}

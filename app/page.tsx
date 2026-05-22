@@ -97,6 +97,12 @@ export default function Home() {
             "logo": "https://eaha.et/Images/logo.png",
             "telephone": "+251-911-523-444",
             "email": "info@eahac.com",
+            "contactPoint": [
+              { "@type": "ContactPoint", "telephone": "+251-911-523-444", "contactType": "customer service", "areaServed": "ET", "availableLanguage": ["en", "am"] },
+              { "@type": "ContactPoint", "telephone": "+251-912-501-599", "contactType": "customer service", "areaServed": "ET", "availableLanguage": ["en", "am"] },
+              { "@type": "ContactPoint", "telephone": "+251-114-552-580", "contactType": "customer service", "areaServed": "ET", "availableLanguage": ["en", "am"] },
+              { "@type": "ContactPoint", "telephone": "+251-114-552-941", "contactType": "customer service", "areaServed": "ET", "availableLanguage": ["en", "am"] }
+            ],
             "address": {
               "@type": "PostalAddress",
               "streetAddress": "Kirkos Subcity Wereda 03, Lydia Plaza 1st Floor, Ethio-China Friendship Road, Wello Sefer",

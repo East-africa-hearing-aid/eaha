@@ -104,6 +104,7 @@ const Footer = () => {
             <p className="font-suisse-regular text-black/50">+251 911 523 444</p>
             <p className="font-suisse-regular text-black/50">+251 912 501 599</p>
             <p className="font-suisse-regular text-black/50">+251 114 552 580</p>
+            <p className="font-suisse-regular text-black/50">+251 114 552 941</p>
             <p className="font-suisse-regular text-sm text-black/50 max-w-[220px] mt-2">
               Kirkos Subcity Wereda 03,<br />
               Lydia Plaza 1st Floor<br />

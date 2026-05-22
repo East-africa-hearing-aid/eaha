@@ -225,6 +225,7 @@ const Nav = () => {
               <Link className="text-white" href="tel:+251911523444">+251 911 523 444</Link>
               <Link className="text-white" href="tel:+251912501599">+251 912 501 599</Link>
               <Link className="text-white" href="tel:+251114552580">+251 114 552 580</Link>
+              <Link className="text-white" href="tel:+251114552941">+251 114 552 941</Link>
             </div>
           </div>
 
