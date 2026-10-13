@@ -8,15 +8,31 @@ const BookShader = dynamic(() => import("./components/BookShader"), { ssr: false
 
 type FormStatus = "idle" | "loading" | "success" | "error";
 
+// Web3Forms access keys are public by design and must be set at build time
+// (NEXT_PUBLIC_* vars are inlined by Next.js). See .env.example.
+const WEB3FORMS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_KEY;
+const CONTACT_EMAIL = "info@eahac.com";
+
+const EMPTY_FORM = {
+    name: "",
+    age: "",
+    phone: "",
+    gender: "",
+    message: "",
+};
+
 export default function BookContent() {
-    const [form, setForm] = useState({
-        name: "",
-        age: "",
-        phone: "",
-        gender: "",
-        message: "",
-    });
+    const [form, setForm] = useState(EMPTY_FORM);
     const [status, setStatus] = useState<FormStatus>("idle");
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+    // Fallback that works without any third-party service: opens the
+    // visitor's mail app with the form contents pre-filled.
+    const mailtoHref = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(
+        "Appointment Request – EAHAC"
+    )}&body=${encodeURIComponent(
+        `Name: ${form.name}\nAge: ${form.age}\nPhone: ${form.phone}\nGender: ${form.gender}\n\n${form.message}`
+    )}`;
 
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -24,6 +40,17 @@ export default function BookContent() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setErrorMessage(null);
+
+        if (!WEB3FORMS_KEY) {
+            console.error(
+                "NEXT_PUBLIC_WEB3FORMS_KEY is not set. Add it to the hosting environment and redeploy."
+            );
+            setErrorMessage("The online form is not available right now.");
+            setStatus("error");
+            return;
+        }
+
         setStatus("loading");
         try {
             const res = await fetch("https://api.web3forms.com/submit", {
@@ -33,7 +60,7 @@ export default function BookContent() {
                     Accept: "application/json",
                 },
                 body: JSON.stringify({
-                    access_key: process.env.NEXT_PUBLIC_WEB3FORMS_KEY,
+                    access_key: WEB3FORMS_KEY,
                     subject: "New Appointment Request – EAHAC",
                     from_name: form.name,
                     name: form.name,
@@ -43,9 +70,21 @@ export default function BookContent() {
                     message: form.message,
                 }),
             });
-            const data = await res.json();
-            setStatus(data.success ? "success" : "error");
-        } catch {
+            const data: { success?: boolean; message?: string } | null = await res
+                .json()
+                .catch(() => null);
+
+            if (res.ok && data?.success) {
+                setStatus("success");
+                setForm(EMPTY_FORM);
+            } else {
+                console.error("Web3Forms rejected the submission:", res.status, data);
+                setErrorMessage(data?.message ?? `Request failed (${res.status}).`);
+                setStatus("error");
+            }
+        } catch (err) {
+            console.error("Form submission failed:", err);
+            setErrorMessage("Could not reach the server. Check your connection.");
             setStatus("error");
         }
     };
@@ -177,9 +216,21 @@ export default function BookContent() {
                             </span>
                         )}
                         {status === "error" && (
-                            <span className="font-suisse-regular text-sm text-red-500">
-                                Something went wrong. Please try again.
-                            </span>
+                            <div className="flex flex-col gap-1 font-suisse-regular text-sm">
+                                <span className="text-red-500">
+                                    Something went wrong.{errorMessage ? ` ${errorMessage}` : ""}
+                                </span>
+                                <span className="text-gray-500">
+                                    Please try again, call us, or{" "}
+                                    <a
+                                        href={mailtoHref}
+                                        className="text-black border-b border-primary"
+                                    >
+                                        send this by email
+                                    </a>
+                                    .
+                                </span>
+                            </div>
                         )}
                     </div>
                 </form>

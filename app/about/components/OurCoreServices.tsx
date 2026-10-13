@@ -6,7 +6,9 @@ import { Button } from "@/components/ui/Button";
 
 const services = [
     {
-        title: "Advanced Hearing-\naids",
+        title: "Advanced Hearing-aids\nAnd Diagnostic Device",
+        // Narrow screens can't fit "Advanced Hearing-aids" on one line.
+        mobileTitle: "Advanced Hearing-\naids And\nDiagnostic Device",
         description:
             "Our advanced hearing aid services include assessment, fitting, and ongoing support using modern digital technology. We offer a wide range of devices, from discreet in-ear options to powerful behind-the-ear models, all designed for comfort, clarity, and real-world listening. With features like noise reduction, Bluetooth connectivity, and adaptive sound settings, each device is carefully customized and fine-tuned by our specialists to match the individual’s unique hearing needs.",
         highlights: [
@@ -15,7 +17,7 @@ const services = [
             "Features like noise reduction, Bluetooth connectivity",
         ],
         cta: { label: "View Products", href: "/" },
-        images: ["/Images/about/a1.jpg", "/Images/about/a2.jpeg"],
+        images: ["/Images/about/a1.jpg", "/Images/about/path-device.jpg"],
     },
     {
         title: "Speech Therapy",
@@ -128,7 +130,14 @@ const OurCoreServices = () => {
                                     {/* bottom-right bracket */}
                                     <span className="absolute -bottom-3 -right-6 size-4 md:size-8 border-b-2 border-r-2 border-primary" />
                                     <h3 className="font-suisse-bold text-white relative text-3xl md:text-4xl lg:text-5xl leading-tight whitespace-pre-line">
-                                        {service.title}
+                                        {"mobileTitle" in service && service.mobileTitle ? (
+                                            <>
+                                                <span className="md:hidden">{service.mobileTitle}</span>
+                                                <span className="hidden md:inline">{service.title}</span>
+                                            </>
+                                        ) : (
+                                            service.title
+                                        )}
                                     </h3>
                                 </div>
                             </div>

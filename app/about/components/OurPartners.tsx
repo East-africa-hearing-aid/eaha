@@ -23,6 +23,12 @@ const partners = [
         description:
             "A US-based hearing aid company known for innovative, AI-powered hearing devices and strong focus on health-tech integration.",
     },
+    {
+        name: "PATH MEDICAL",
+        logo: "/Images/about/path-medical.png",
+        description:
+            "A German medical technology company developing advanced hearing diagnostic devices, including OAE, ABR and audiometry screening for newborns, children and adults.",
+    },
 ];
 
 /* ── Corner-bracket decorator ─────────────────────────────────────── */
@@ -132,6 +138,12 @@ const OurPartners = () => {
                     partner={partners[2]}
                     style={{ position: "absolute", left: "calc(50% - 394px)", top: "calc(50% + 167px)", transform: "translate(-50%, -50%)" }}
                 />
+
+                {/* PATH MEDICAL — upper-right */}
+                <PartnerCard
+                    partner={partners[3]}
+                    style={{ position: "absolute", left: "calc(50% + 394px)", top: "calc(50% - 167px)", transform: "translate(-50%, -50%)" }}
+                />
             </div>
 
             {/* Mobile: globe + grid */}
@@ -140,9 +152,9 @@ const OurPartners = () => {
                     <Globe />
                 </div>
                 <div className="grid grid-cols-2 gap-6 w-full">
-                    <PartnerCard partner={partners[0]} />
-                    <PartnerCard partner={partners[1]} />
-                    <PartnerCard partner={partners[2]} className="col-span-2 mx-auto" />
+                    {partners.map((partner) => (
+                        <PartnerCard key={partner.name} partner={partner} />
+                    ))}
                 </div>
             </div>
         </section>
