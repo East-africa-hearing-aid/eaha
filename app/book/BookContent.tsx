@@ -8,9 +8,11 @@ const BookShader = dynamic(() => import("./components/BookShader"), { ssr: false
 
 type FormStatus = "idle" | "loading" | "success" | "error";
 
-// Web3Forms access keys are public by design and must be set at build time
-// (NEXT_PUBLIC_* vars are inlined by Next.js). See .env.example.
-const WEB3FORMS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_KEY;
+// Web3Forms access keys are public by design: they ship in the browser bundle
+// either way. Submissions are delivered to info@eahac.com. Setting
+// NEXT_PUBLIC_WEB3FORMS_KEY at build time overrides this default.
+const WEB3FORMS_KEY =
+    process.env.NEXT_PUBLIC_WEB3FORMS_KEY || "c07ed29a-c5f1-47ff-a3ea-1e78c98ca24c";
 const CONTACT_EMAIL = "info@eahac.com";
 
 const EMPTY_FORM = {
