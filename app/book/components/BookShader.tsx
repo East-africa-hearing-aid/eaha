@@ -37,6 +37,8 @@ const BookShader = () => {
                 uglassSmoothness:      { value: 0.0001 },
                 uEdgePadding:          { value: 0.1 },
                 uQuality:              { value: 1.0 },
+                uShowRefraction:       { value: 1.0 },
+                uWarm:                 { value: 0.0 },
                 iTime:                 { value: 0.0 },
             },
             vertexShader,

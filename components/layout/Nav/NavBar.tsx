@@ -12,6 +12,7 @@ import {
   useRef,
   useState,
 } from "react";
+import BookVisitButton from "../BookVisitButton/BookVisitButton";
 import MenuBtn from "../MenuBtn/MenuBtn";
 
 const Nav = () => {
@@ -174,6 +175,7 @@ const Nav = () => {
         <Image src="/Images/logo.png" alt="Logo" width={60} height={60} />
       </Link>
 
+      <BookVisitButton hidden={isOpen} />
       <MenuBtn isOpen={isOpen} toggleMenu={toggleMenu} />
 
       <div className="menu flex flex-col lg:flex-row z-20" ref={menuRef}>
@@ -199,7 +201,7 @@ const Nav = () => {
               <div className="clippy absolute inset-0 -z-10 pr-2 w-full" />
             </div>
             <div className="link text-center px-1">
-              <Link href="/book" onClick={() => setIsOpen(!isOpen)}>Book an Appointment</Link>
+              <Link href="/book" onClick={() => setIsOpen(!isOpen)}>Book a Visit</Link>
               <div className="clippy absolute inset-0 -z-10 pr-2 w-full" />
             </div>
           </div>

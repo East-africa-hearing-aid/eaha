@@ -14,6 +14,8 @@ interface FractalGlassProps {
   edgePadding?: number;
   quality?: number;
   showRefraction?: boolean;
+  /** Warm palette without the dark tones. */
+  warm?: boolean;
   className?: string;
 }
 
@@ -27,6 +29,7 @@ const FractalGlass: React.FC<FractalGlassProps> = ({
   edgePadding = 0.1,
   quality = 1.0,
   showRefraction = true,
+  warm = false,
   className = "",
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -69,6 +72,7 @@ const FractalGlass: React.FC<FractalGlassProps> = ({
         uEdgePadding: { value: edgePadding },
         uQuality: { value: quality },
         uShowRefraction: { value: showRefraction ? 1.0 : 0.0 },
+        uWarm: { value: warm ? 1.0 : 0.0 },
         iTime: { value: 0.0 },
       },
       vertexShader,
@@ -118,6 +122,7 @@ const FractalGlass: React.FC<FractalGlassProps> = ({
     materialRef.current.uniforms.uEdgePadding.value = edgePadding;
     materialRef.current.uniforms.uQuality.value = quality;
     materialRef.current.uniforms.uShowRefraction.value = showRefraction ? 1.0 : 0.0;
+    materialRef.current.uniforms.uWarm.value = warm ? 1.0 : 0.0;
   }, [
     parallaxStrength,
     distortionMultiplier,
@@ -127,6 +132,7 @@ const FractalGlass: React.FC<FractalGlassProps> = ({
     edgePadding,
     quality,
     showRefraction,
+    warm,
   ]);
 
   const handleMouseMove = (e: MouseEvent) => {

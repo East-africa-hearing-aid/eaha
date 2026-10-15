@@ -2,6 +2,7 @@ import Footer from "@/components/layout/Footer";
 import EmptySection from "@/components/sections/EmptySection";
 import FAQ from "@/components/sections/FAQ";
 import HearingSection from "@/components/sections/HearingSection";
+import Partners from "@/components/sections/Partners";
 import Landing from "@/components/sections/Landing";
 import Testimonials from "@/components/sections/Testimonials";
 import TeamSection from "@/components/sections/TeamSection";
@@ -60,7 +61,7 @@ export default function Home() {
       </section>
 
 
-      <section id="testimonials" aria-labelledby="testimonials-section">
+      <section id="testimonials" aria-labelledby="testimonials-section" className="bg-white">
         <h2 id="testimonials-section" className="sr-only">Patient Testimonials</h2>
         <span className="sr-only">
           Hearing aid reviews Ethiopia, patient testimonials Addis Ababa, hearing care success stories East Africa,
@@ -78,6 +79,8 @@ export default function Home() {
         </span>
         <FAQ key="faq" />
       </section>
+
+      <Partners />
 
       <EmptySection />
 

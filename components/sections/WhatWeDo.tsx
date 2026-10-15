@@ -7,7 +7,9 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 import { useGSAP } from "@gsap/react";
 import Copy from "../ui/Copy/Copy";
+import SectionChip from "../ui/SectionChip";
 import Link from "next/link";
+import { Button } from "../ui/Button";
 
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
@@ -103,18 +105,23 @@ export default function WhatWeDo() {
     <section ref={sectionRef} className="relative w-full bg-white min-h-screen flex justify-center items-center overflow-hidden">
       <div className="w-full mx-auto">
         {/* Header */}
-        <div className="px-6 md:px-16 lg:px-20 pt-16 lg:pt-20 pb-8 w-full flex flex-col md:flex-row justify-between items-center">
+        <div className="px-6 md:px-16 lg:px-20 pt-16 lg:pt-20 pb-12 lg:pb-[4.5rem] w-full flex flex-col md:flex-row justify-between md:items-end gap-6">
           <div>
-            <p className="font-suisse-mono text-sm tracking-[0.2em] uppercase text-gray-500 mb-3">WHAT WE DO</p>
+            <SectionChip className="mb-4">What We Do</SectionChip>
             <Copy animateOnScroll={true}>
-              <h3 className="font-suisse-bold text-3xl md:text-5xl leading-[1] mb-4">
-                What You Hear Shapes<br />How You Live
+              <h3 className="font-suisse-medium text-[2.4rem] md:text-[3.575rem] leading-[1.05] tracking-[-0.035em] mb-3">
+                What You Hear<br />Shapes How You Live
               </h3>
             </Copy>
-            <p className="font-suisse-regular text-base md:text-xl text-gray-500">
-              We offer personalized hearing care that improves your ability to connect and communicate
+            <p className="font-suisse-regular text-base md:text-[1.05rem] leading-[1.2] tracking-[-0.03em] text-[#666] max-w-[520px]">
+              We provide a comprehensive range of professional services designed to support, enhance, and safeguard your auditory health.
             </p>
           </div>
+          <Link href="/about" className="shrink-0 md:mb-1">
+            <Button variant="md" mode="default" className="!rounded-[0.9rem] !px-9 !py-0 h-[46px] !text-[1.375rem] tracking-[-0.03em]">
+              Learn More
+            </Button>
+          </Link>
         </div>
 
         {/* Desktop: horizontal scroll track */}
@@ -125,8 +132,8 @@ export default function WhatWeDo() {
           >
             {slides.map((slide, idx) => (
               <div key={idx} className="flex-shrink-0 w-[35rem] snap-start">
-                <p className="text-black text- font-suisse-book uppercase pt-2 pb-1">
-                  [<span className="text-gray-500">0{idx+1}</span>] {slide.title}
+                <p className="text-black font-suisse-book uppercase pt-2 pb-4">
+                  [<span className="text-gray-500">{idx+1}</span>] {slide.title}
                 </p>
                 <div className="relative h-[55dvh] overflow-hidden">
                   <Image

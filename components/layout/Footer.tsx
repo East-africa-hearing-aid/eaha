@@ -53,7 +53,12 @@ const SOCIALS = [
 
 
 // ── Footer ───────────────────────────────────────────────────────────────────
-const Footer = () => {
+interface FooterProps {
+  /** Plain black EAHAC wordmark instead of the shader fill (used on the About page). */
+  solidBrand?: boolean;
+}
+
+const Footer = ({ solidBrand = false }: FooterProps) => {
   const footerRef = useRef<HTMLElement>(null);
   const shaderMountRef = useRef<HTMLDivElement>(null);
 
@@ -140,17 +145,20 @@ const Footer = () => {
         {/* ── Bottom section ── */}
         <div className="mt-8">
           {/* Shader text effect */}
-          <div className="relative w-full overflow-hidden rounded-2xl">
+          {/* @container: the wordmark is sized from this box's width so it fills it at every screen size */}
+          <div className="@container relative w-full overflow-hidden rounded-2xl">
             {/* Shader layer */}
-            <div className="absolute right-0">
-              <FractalGlass showRefraction={false} quality={0.6} className="w-full h-full" />
-            </div>
+            {!solidBrand && (
+              <div className="absolute right-0">
+                <FractalGlass warm showRefraction={false} quality={0.6} className="w-full h-full" />
+              </div>
+            )}
             {/* White mask with black text — screen blend makes black = shader, white = white */}
             <div
-              className="relative flex items-center justify-center bg-white mix-blend-screen select-none pointer-events-none"
+              className={`relative flex items-center justify-center bg-white select-none pointer-events-none ${solidBrand ? "" : "mix-blend-screen"}`}
             >
               <h2
-                className="ft-brand font-suisse-bold leading-none text-black text-7xl md:text-9xl lg:text-[15rem] 2xl:text-[25rem]"
+                className="ft-brand font-suisse-bold leading-none text-black text-[27.5cqw]"
               >
                 EAHAC
               </h2>

@@ -53,9 +53,9 @@ const Landing = () => {
   return (
     <div className='relative'>
       {showPreloader && <Preloader setShowPreloader={setShowPreloader} />}
-      <FractalGlass key="fractal-glass" className='fixed inset-0 -z-10 h-[105dvh] md:h-[118dvh] overflow-hidden' />
+      <FractalGlass key="fractal-glass" warm stripesFrequency={40} className='fixed inset-0 -z-10 h-[105dvh] md:h-[118dvh] overflow-hidden' />
 
-      <div className='w-screen h-[110dvh] flex flex-col justify-end items-center bg-transparent gap-y-6 py-28 relative z-0'>
+      <div className='w-screen h-[107dvh] flex flex-col justify-end items-center bg-transparent gap-y-6 py-28 relative z-0'>
         <h1 className='sr-only'>Rediscover The Beauty of Hearing</h1>
         <p className='sr-only'>One wave, one frequency, one life at a time.</p>
 

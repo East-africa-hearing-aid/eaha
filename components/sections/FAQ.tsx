@@ -2,7 +2,9 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import Link from "next/link";
 import Copy from "../ui/Copy/Copy";
+import SectionChip from "../ui/SectionChip";
 
 export const faqData = [
   {
@@ -51,6 +53,19 @@ export const faqData = [
   }
 ];
 
+const BracketButton = ({ label, onClick }: { label: string; onClick: () => void }) => (
+  <button
+    onClick={onClick}
+    className="relative cursor-pointer px-5 h-[37px] leading-none font-suisse-regular text-[1.34rem] tracking-[-0.03em] text-black hover:text-primary transition-colors"
+  >
+    <span className="absolute top-0 left-0 w-3 h-3 border-t border-l border-primary" />
+    <span className="absolute top-0 right-0 w-3 h-3 border-t border-r border-primary" />
+    <span className="absolute bottom-0 left-0 w-3 h-3 border-b border-l border-primary" />
+    <span className="absolute bottom-0 right-0 w-3 h-3 border-b border-r border-primary" />
+    {label}
+  </button>
+);
+
 const INITIAL_COUNT = 5;
 const STEP = 5;
 
@@ -74,67 +89,65 @@ const FAQ = () => {
   const hasLess = visibleCount > INITIAL_COUNT;
 
   return (
-    <section className="w-full px-4 lg:px-24 py-16 bg-white rounded-b-[2rem] md:rounded-b-[4rem]">
-      <div className="w-full mx-auto px-4 max-w-[1440px]">
-        <div className="mb-10">
-          <p className="font-suisse-mono text-sm tracking-[0.2em] uppercase text-gray-500 mb-3">FAQ</p>
+    <section className="w-full bg-white">
+      {/* Full width with the same side padding as the other home sections. */}
+      <div className="w-full px-6 md:px-16 lg:px-20 pt-16 lg:pt-28 pb-16 lg:pb-24">
+        <div className="mb-10 lg:mb-[50px]">
+          <SectionChip className="mb-5">FAQ</SectionChip>
           <Copy animateOnScroll={true} delay={0.2}>
-            <h2 className="font-suisse-bold text-3xl md:text-5xl leading-[1] mb-4">
-              Frequently Asked <br />
-              <span className="text-[#ff6633]">Questions</span>
+            <h2 className="font-suisse-regular uppercase text-[2rem] md:text-[2.55rem] leading-[1.13] tracking-[-0.045em]">
+              Frequently <br />
+              Asked Questions
             </h2>
           </Copy>
-          <p className="font-suisse-regular text-base md:text-xl text-gray-500">
-            Everything you need to know about hearing care.
-          </p>
         </div>
 
-        <div className="w-full flex items-start justify-center gap-8">
-          {/* Image — sticky so it stays centered as the list grows */}
-          <div className="max-w-md w-full hidden lg:block self-center">
+        <div className="w-full flex items-start">
+          {/* Ear column: 46% of the width; the ear is centred in it and vertically against the question list */}
+          <div className="hidden lg:flex w-[46%] shrink-0 self-center justify-center pr-8">
             <Image
-              src="/Images/ear.jpg"
+              src="/Images/home/ear.png"
               alt="Ear illustration"
-              className="w-full h-auto object-contain"
-              width={450}
-              height={450}
+              className="w-[52%] max-w-[420px] h-auto object-contain drop-shadow-[0_40px_30px_rgba(0,0,0,0.12)]"
+              width={600}
+              height={600}
             />
           </div>
 
           {/* FAQ list */}
-          <div className="md:w-1/2 ml-auto">
-            <div className="space-y-2">
+          <div className="w-full lg:w-[54%]">
+            <div>
               {faqData.slice(0, visibleCount).map((faq, idx) => (
-                <div key={idx} className="border-b border-gray-200">
+                <div key={idx} className="border-b border-[#cccccc]">
                   <button
                     onClick={() => handleToggle(idx)}
                     aria-expanded={openIdx === idx}
-                    className="w-full flex items-center justify-between cursor-pointer py-4 group text-left"
+                    className="w-full flex items-end justify-between cursor-pointer pt-[34px] pb-[9px] group text-left"
                   >
                     <span
-                      className={`text-lg md:text-xl transition-colors duration-200 ${openIdx === idx ? "text-[#ff6633]" : "text-black"
-                        } group-hover:text-[#ff6633]`}
+                      className={`font-suisse-regular text-lg md:text-[1.34rem] leading-[1.2] tracking-[-0.03em] transition-colors duration-200 ${openIdx === idx ? "text-primary" : "text-black"
+                        } group-hover:text-primary`}
                     >
                       {faq.question}
                     </span>
 
                     <span
-                      className={`ml-4 flex-shrink-0 transition-transform duration-300 ${openIdx === idx
-                        ? "rotate-45 text-[#ff6633]"
-                        : "text-gray-400"
+                      className={`ml-4 mb-[6px] flex-shrink-0 transition-transform duration-300 ${openIdx === idx
+                        ? "rotate-45 text-primary"
+                        : "text-[#cccccc]"
                         }`}
                       aria-hidden
                     >
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                        <line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                        <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                      <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+                        <line x1="15" y1="1" x2="15" y2="29" stroke="currentColor" strokeWidth="1" />
+                        <line x1="1" y1="15" x2="29" y2="15" stroke="currentColor" strokeWidth="1" />
                       </svg>
                     </span>
                   </button>
 
                   <div
-                    className={`transition-all duration-500 ease-in-out overflow-hidden ${openIdx === idx ? "max-h-[500px] opacity-100 pb-4" : "max-h-0 opacity-0"
-                      } text-base text-gray-600 font-suisse-regular`}
+                    className={`transition-all duration-500 ease-in-out overflow-hidden ${openIdx === idx ? "max-h-[500px] opacity-100 pb-5" : "max-h-0 opacity-0"
+                      } text-base text-[#666] leading-relaxed font-suisse-regular`}
                   >
                     {faq.answer.split("\n").map((line, i) => (
                       <div key={i} className="mb-1">{line}</div>
@@ -146,30 +159,16 @@ const FAQ = () => {
 
             {/* More / Less buttons */}
             {(hasMore || hasLess) && (
-              <div className="mt-8 flex justify-center gap-3">
-                {hasMore && (
-                  <button
-                    onClick={handleMore}
-                    className="cursor-pointer px-8 py-2.5 rounded-xl border border-gray-300 bg-white text-black font-suisse-regular text-sm hover:border-gray-400 hover:bg-gray-50 transition-colors"
-                  >
-                    More
-                  </button>
-                )}
-                {hasLess && (
-                  <button
-                    onClick={handleLess}
-                    className="cursor-pointer px-8 py-2.5 rounded-xl border border-gray-300 bg-white text-black font-suisse-regular text-sm hover:border-gray-400 hover:bg-gray-50 transition-colors"
-                  >
-                    Less
-                  </button>
-                )}
+              <div className="mt-6 flex justify-end gap-4">
+                {hasLess && <BracketButton label="Less" onClick={handleLess} />}
+                {hasMore && <BracketButton label="More" onClick={handleMore} />}
               </div>
             )}
 
-            <div className="mt-8 text-lg text-black">
-              Still having troubles? Reach out to us{" "}
-              <span className="text-[#ff6633]">info@eahac.com</span>
-            </div>
+            <p className="mt-7 text-right font-suisse-mono text-base md:text-xl tracking-[-0.01em] text-black">
+              Still Have questions, Reach out to us{" "}
+              <Link href="/book" className="text-primary hover:underline">@contact</Link>
+            </p>
           </div>
         </div>
       </div>

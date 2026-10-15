@@ -19,6 +19,8 @@ export const fragmentShader = `
       uniform float uQuality;
       // 0.0 = gradient only, 1.0 = gradient + refraction glass
       uniform float uShowRefraction;
+      // 1.0 = warm palette without the dark tones (landing hero)
+      uniform float uWarm;
       uniform float iTime;
       
       varying vec2 vUv;
@@ -85,6 +87,18 @@ export const fragmentShader = `
           
           float cycle = sin(iTime * 0.5);
           float t = (sign(cycle) * pow(abs(cycle), 0.6) + 1.) / 2.;
+          if (uWarm > 0.5) {
+            // warm palette sampled from the design: amber, orange, deep orange-red — no black
+            amberYellow = vec3(250.0, 206.0, 128.0) / vec3(255);
+            purpleHaze = vec3(250.0, 181.0, 99.0) / vec3(255);
+            pink = vec3(250.0, 128.0, 54.0) / vec3(255);
+            deepBlue = vec3(243.0, 90.0, 27.0) / vec3(255);
+            swampyBlack = vec3(231.0, 71.0, 19.0) / vec3(255);
+            persimmonOrange = vec3(244.0, 96.0, 40.0) / vec3(255);
+            blue = vec3(220.0, 64.0, 46.0) / vec3(255);
+            darkAmber = vec3(196.0, 48.0, 20.0) / vec3(255);
+          }
+
           vec3 color1 = mix(amberYellow, purpleHaze, t);
           vec3 color2 = mix(deepBlue, swampyBlack, t);
           vec3 color3 = mix(pink, persimmonOrange, t);
@@ -167,6 +181,19 @@ export const fragmentShader = `
 
         vec3 color = gradientBackground(uv);
 
-        gl_FragColor = vec4(color, 1.0);
+        // Visible glass strips (landing hero), matched to the design: a thin highlight where each strip
+        // starts, a very gentle fall-off across it, a dark hairline where it ends, plus film grain.
+        if (uWarm > 0.5 && uShowRefraction > 0.5) {
+          float f = fract(vUv.x * ustripesFrequency);
+          float px = ustripesFrequency / uResolution.x;          // one pixel in strip units
+          float edgeFade = smoothEdge(vUv.x, uEdgePadding * 0.5);
+          color *= mix(1.0, mix(1.025, 0.975, f), edgeFade);
+          color += edgeFade * 0.05 * (1.0 - smoothstep(0.0, 2.5 * px, f));
+          color -= edgeFade * 0.07 * smoothstep(1.0 - 1.5 * px, 1.0, f);
+          float grain = fract(sin(dot(gl_FragCoord.xy + fract(iTime) * 97.0, vec2(12.9898, 78.233))) * 43758.5453);
+          color += (grain - 0.5) * 0.11;
+        }
+
+        gl_FragColor = vec4(clamp(color, 0.0, 1.0), 1.0);
       }
     `;

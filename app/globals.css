@@ -42,7 +42,7 @@
 
 @font-face {
   font-family: "Suisse_Intl_Light";
-  src: url("/fonts/Suisse_Intl_Light.ttf") format("truetype");
+  src: url("/fonts/SuisseIntl-Light.ttf") format("truetype");
   font-weight: 300;
   font-style: normal;
   font-display: swap;
@@ -60,7 +60,7 @@
 
 @theme {
   --color-primary: #ff6633;
-  --color-background: #1a2121;
+  --color-background: #000000;
 }
 
 ::-webkit-scrollbar {

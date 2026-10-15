@@ -7,6 +7,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { Button } from "../ui/Button";
 import Copy from "../ui/Copy/Copy";
+import SectionChip from "../ui/SectionChip";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -22,14 +23,14 @@ const team = [
 ];
 
 const TeamCard = ({ member }: { member: (typeof team)[number] }) => (
-  <div className="flex flex-col gap-4 w-[25vw] min-w-[300px] shrink-0">
-    <div className="relative w-full aspect-[4/5] overflow-hidden">
+  <div className="flex flex-col gap-4 w-[29.5vw] max-w-[402px] min-w-[300px] shrink-0">
+    <div className="group relative w-full aspect-[402/470] overflow-hidden">
       <Image
         src={member.image}
-        alt={member.name}
+        alt="EAHAC team member"
         fill
-        className="object-cover"
-        sizes="25vw"
+        className="object-cover grayscale group-hover:grayscale-0 transition-[filter] duration-500"
+        sizes="30vw"
       />
     </div>
   </div>
@@ -91,38 +92,39 @@ const TeamSection: React.FC = () => {
   return (
     <section
       ref={sectionRef}
-      className="w-full bg-background text-white overflow-hidden"
+      className="relative z-10 w-full bg-background text-white overflow-hidden rounded-t-[2.5rem] md:rounded-t-[6.5rem]"
     >
       {/* Header */}
-      <div className="px-6 md:px-16 lg:px-20 pt-16 pb-10 lg:pt-20 lg:pb-14 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+      <div className="px-6 md:px-16 lg:px-20 pt-16 pb-12 lg:pt-[6.6rem] lg:pb-[6.8rem] flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
         <div>
+          <SectionChip tone="dark" className="mb-5">Our Team</SectionChip>
           <Copy animateOnScroll={true}>
-            <h2 className="font-suisse-bold text-3xl md:text-5xl leading-[1] mb-4">
-              Our Team
+            <h2 className="font-suisse-medium text-[2.6rem] md:text-[3.75rem] leading-[1.15] tracking-[-0.035em] mb-3">
+              Meet Our<br /><span className="text-[#cccccc]">Medical Team</span>
             </h2>
           </Copy>
-          <p className="font-suisse-regular text-base md:text-xl text-gray-400">
+          <p className="font-suisse-regular text-lg md:text-[1.44rem] tracking-[-0.03em] text-[#cccccc]">
             Delivering excellence in patient care.
           </p>
         </div>
         <div className="lg:pb-1">
           <Link href="/about">
-            <Button variant="lg" mode="default">
-              Learn More
+            <Button variant="md" mode="default" className="!bg-[#6b6b6b] !rounded-[0.9rem] !px-11 !py-0 h-[46px] !text-[1.375rem] tracking-[-0.03em]">
+              About us
             </Button>
           </Link>
         </div>
       </div>
 
       {/* Desktop: infinite marquee */}
-      <div className="hidden lg:block pb-20">
-        <div ref={trackRef} className="flex gap-6">
-          <div ref={setRef} className="flex gap-6 shrink-0">
+      <div className="hidden lg:block pb-[17.5rem]">
+        <div ref={trackRef} className="flex gap-[52px]">
+          <div ref={setRef} className="flex gap-[52px] shrink-0">
             {team.map((member, idx) => (
               <TeamCard key={idx} member={member} />
             ))}
           </div>
-          <div className="flex gap-6 shrink-0">
+          <div className="flex gap-[52px] shrink-0" aria-hidden>
             {team.map((member, idx) => (
               <TeamCard key={`dup-${idx}`} member={member} />
             ))}
@@ -131,15 +133,15 @@ const TeamSection: React.FC = () => {
       </div>
 
       {/* Mobile: vertical list */}
-      <div className="lg:hidden px-6 md:px-16 pb-16 flex flex-col gap-8">
+      <div className="lg:hidden px-6 md:px-16 pb-32 flex flex-col gap-8">
         {team.map((member, idx) => (
           <div key={idx} className="flex flex-col gap-3">
             <div className="relative w-full aspect-[4/5] rounded-md overflow-hidden bg-neutral-700">
               <Image
                 src={member.image}
-                alt={member.name}
+                alt="EAHAC team member"
                 fill
-                className="object-cover"
+                className="object-cover grayscale"
                 sizes="100vw"
               />
             </div>

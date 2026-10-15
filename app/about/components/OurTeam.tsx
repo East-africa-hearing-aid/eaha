@@ -4,35 +4,31 @@ import Image from "next/image";
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { div } from "three/tsl";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const team = [
-    { name: "Full Name", title: "Surgeon",     image: "/Images/team/01.jpg"   },
-    { name: "Full Name", title: "Audiologist", image: "/Images/team/02.jpg"   },
-    { name: "Full Name", title: "Specialist",  image: "/Images/team/03.jpg"  },
-    { name: "Full Name", title: "Therapist",   image: "/Images/team/04.jpg"    },
-    { name: "Full Name", title: "Audiometrist",image: "/Images/team/05.jpg"    },
-    { name: "Full Name", title: "Consultant",  image: "/Images/team/06.jpg"    },
-    { name: "Full Name", title: "Consultant",  image: "/Images/team/07.jpg"    },
-    { name: "Full Name", title: "Consultant",  image: "/Images/team/08.jpg"    },
+const team: { name: string; title: string; image: string }[] = [
+    { name: "", title: "", image: "/Images/team/01.jpg" },
+    { name: "", title: "", image: "/Images/team/02.jpg" },
+    { name: "", title: "", image: "/Images/team/03.jpg" },
+    { name: "", title: "", image: "/Images/team/04.jpg" },
+    { name: "", title: "", image: "/Images/team/05.jpg" },
+    { name: "", title: "", image: "/Images/team/06.jpg" },
+    { name: "", title: "", image: "/Images/team/07.jpg" },
+    { name: "", title: "", image: "/Images/team/08.jpg" },
 ];
 
 // triple the array so each row is always wider than the viewport even with offset
 const row = [...team, ...team, ...team];
 
-const PhotoCard = ({ member, idx }: { member: (typeof team)[number]; idx: number }) => (
-    <div
-        key={idx}
-        className="photo-card shrink-0 w-full lg:w-[19.6vw] aspect-square overflow-hidden"
-    >
+const PhotoCard = ({ member }: { member: (typeof team)[number] }) => (
+    <div className="photo-card relative shrink-0 w-full aspect-[259/302] overflow-hidden bg-[#111]">
         <Image
             src={member.image}
-            alt={member.name}
-            width={400}
-            height={400}
-            className="object-cover w-full h-full grayscale"
+            alt={member.name || "EAHAC team member"}
+            fill
+            sizes="(max-width: 768px) 100vw, 260px"
+            className="object-cover grayscale"
         />
     </div>
 );
@@ -79,38 +75,37 @@ const OurTeam = () => {
     }, []);
 
     return (
-        <section className="w-full py-20 overflow-hidden max-w-[1440px] mx-auto">
+        <section className="w-full pt-10 pb-20 md:pb-[7.6rem] overflow-hidden max-w-[1440px] mx-auto md:px-[6.2rem]">
             {/* Header — top right */}
-            <div className="flex justify-end items-center gap-2 mb-12">
-                <span className="font-suisse-mono text-xl tracking-[0.2em] uppercase text-gray-400">
+            <div className="flex justify-end items-center gap-7 mb-10 md:mb-[2.3rem]">
+                <h2 className="font-suisse-medium text-[2rem] md:text-[2.4rem] tracking-[-0.03em] text-[#f2f2f2]">
                     Our Team
-                </span>
-                <div className="w-3 h-5 bg-primary shrink-0" />
+                </h2>
+                <div className="w-3.5 h-[30px] bg-primary shrink-0" />
             </div>
 
-            {/* Row 1 — flush left, right-to-left reveal */}
-            <div ref={row1Ref} className="grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-8 mb-3">
-                {row.slice(0, 3).map((member, idx) => (
-                    <PhotoCard key={`r1-${idx}`} member={member} idx={idx} />
-                ))}
-            </div>
+            <div className="mx-auto max-w-[1132px]">
+                {/* Row 1 — columns 1-3, right-to-left reveal */}
+                <div ref={row1Ref} className="grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-[31px] mb-3 md:mb-[35px]">
+                    {row.slice(0, 3).map((member, idx) => (
+                        <PhotoCard key={`r1-${idx}`} member={member} />
+                    ))}
+                </div>
 
-            {/* Row 2 — offset right, left-to-right reveal */}
-            <div
-                ref={row2Ref}
-                className="grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-8 mb-3"
-            >
-                <div className="hidden md:flex"></div>
-                {row.slice(3, 6).map((member, idx) => (
-                    <PhotoCard key={`r2-${idx}`} member={member} idx={idx} />
-                ))}
-            </div>
+                {/* Row 2 — columns 2-4, left-to-right reveal */}
+                <div ref={row2Ref} className="grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-[31px] mb-3 md:mb-[35px]">
+                    <div className="hidden md:block" />
+                    {row.slice(3, 6).map((member, idx) => (
+                        <PhotoCard key={`r2-${idx}`} member={member} />
+                    ))}
+                </div>
 
-            {/* Row 3 — flush left, right-to-left reveal */}
-            <div ref={row3Ref} className="grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-8 mb-3">
-                {row.slice(6, 8).map((member, idx) => (
-                    <PhotoCard key={`r3-${idx}`} member={member} idx={idx} />
-                ))}
+                {/* Row 3 — columns 1-2, right-to-left reveal */}
+                <div ref={row3Ref} className="grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-[31px]">
+                    {row.slice(6, 8).map((member, idx) => (
+                        <PhotoCard key={`r3-${idx}`} member={member} />
+                    ))}
+                </div>
             </div>
         </section>
     );

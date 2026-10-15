@@ -1,13 +1,11 @@
 'use client';
 import gsap from 'gsap';
-import Image from 'next/image';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { BsSoundwave } from 'react-icons/bs';
-import { PiTextAaLight } from 'react-icons/pi';
 import { TbWaveSine } from 'react-icons/tb';
-import AudioButton from '../ui/AudioButton';
 import { Button } from '../ui/Button';
 import HearingTestCard from '../ui/HearingTestCard';
+import SectionChip from '../ui/SectionChip';
 import Copy from '../ui/Copy/Copy';
 import HearingQuiz from './HearingQuiz';
 
@@ -21,8 +19,8 @@ const audioFiles = [
     },
     {
         src: '/Audio/words.mp3',
-        icon: <PiTextAaLight />,
-        name: 'Word',
+        icon: <span className='font-suisse-book leading-none'>Aa</span>,
+        name: 'Words',
         description: "This mode allows you to conduct a hearing test through the usage of spoken words."
     },
     {
@@ -33,15 +31,66 @@ const audioFiles = [
     },
 ];
 
-const NUM_RAYS = 96;
-const RADIUS_RATIO = 0.35;
-const RAY_LENGTH_RATIO = 0.15;
-const BAR_COLOR = '#FF6633';
+// Dashed ring: idle dashes are always drawn, audio makes them grow.
+const NUM_RAYS = 56;
+const INNER_RADIUS_RATIO = 0.4;   // of the canvas' smaller side
+const IDLE_DASH_RATIO = 0.055;    // idle dash length
+const MAX_EXTRA_RATIO = 0.045;    // extra length at full signal
+const DASH_WIDTH_RATIO = 0.016;
+const ACTIVE_RGB = [255, 102, 51]; // #FF6633 while audio plays
+const IDLE_RGB = [204, 204, 204]; // #CCCCCC at rest
+
+/** Rectangular gradient bar with tick marks; the native range input sits on top for interaction. */
+function VolumeControl({ volume, onChange }: { volume: number; onChange: (v: number) => void }) {
+    return (
+        <div className="w-full max-w-[250px]">
+            <div className="relative h-[29px] w-full">
+                <div className="absolute inset-0 bg-gradient-to-r from-[#fff4ef] via-[#ffb08f] to-primary" />
+                {/* current level marker */}
+                <span
+                    className="absolute inset-y-0 w-[2px] -ml-px bg-black/70 transition-[left] duration-150"
+                    style={{ left: `${volume * 100}%` }}
+                    aria-hidden
+                />
+                {[19, 35, 51, 67, 83].map((left) => (
+                    <span key={left} className="absolute bottom-0 h-[13px] w-px bg-white" style={{ left: `${left}%` }} />
+                ))}
+                <input
+                    type="range"
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    value={volume}
+                    onChange={(e) => onChange(parseFloat(e.target.value))}
+                    aria-label="Volume control"
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                />
+            </div>
+            <p className="mt-4 font-suisse-regular text-[15px] md:text-[17px] tracking-[-0.03em] text-[#808080] uppercase">Volume Control</p>
+        </div>
+    );
+}
+
+/** Four corner brackets around a mode icon. */
+function ModeBrackets({ active }: { active: boolean }) {
+    // Corners sit slightly outside when idle and snap into place (and turn orange) when selected.
+    const c = active ? 'border-primary' : 'border-[#cfcfcf]';
+    const base = `absolute w-2.5 h-2.5 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${c}`;
+    const o = active ? '0px' : '-3px';
+    return (
+        <>
+            <span className={`${base} border-t border-l`} style={{ top: o, left: o }} />
+            <span className={`${base} border-t border-r`} style={{ top: o, right: o }} />
+            <span className={`${base} border-b border-l`} style={{ bottom: o, left: o }} />
+            <span className={`${base} border-b border-r`} style={{ bottom: o, right: o }} />
+        </>
+    );
+}
 
 export default function AudioVisualizer() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const mountRef = useRef<HTMLDivElement>(null);
-    const [currentAudioIndex, setCurrentAudioIndex] = useState(0);
+    const [currentAudioIndex, setCurrentAudioIndex] = useState(1);
     const [volume, setVolume] = useState(0.5);
     const [isPlaying, setIsPlaying] = useState(false);
     const [hasStartedTest, setHasStartedTest] = useState(false);
@@ -61,8 +110,10 @@ export default function AudioVisualizer() {
     const animFrameRef = useRef<number | null>(null);
     const isVisibleRef = useRef(true);
 
-    const buttonRefs = useRef<(HTMLDivElement | null)[]>([]);
-    const arrowRef = useRef<HTMLDivElement>(null);
+    // Ring colour: grey at rest, eases to orange while audio is playing.
+    const isPlayingRef = useRef(false);
+    const ringMix = useRef(0);
+
 
     const getAudioContext = useCallback(() => {
         if (!audioContextRef.current) {
@@ -159,6 +210,8 @@ export default function AudioVisualizer() {
         resize();
         window.addEventListener('resize', resize);
 
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
         const observer = new IntersectionObserver(
             ([entry]) => { isVisibleRef.current = entry.isIntersecting; },
             { threshold: 0.05 }
@@ -174,9 +227,10 @@ export default function AudioVisualizer() {
             const cx = w / 2;
             const cy = h / 2;
             const minDim = Math.min(w, h);
-            const radius = minDim * RADIUS_RATIO;
-            const innerRadius = radius * (1 - RAY_LENGTH_RATIO);
-            const maxBarHeight = radius - innerRadius;
+            const innerRadius = minDim * INNER_RADIUS_RATIO;
+            const idleLength = minDim * IDLE_DASH_RATIO;
+            const maxExtra = minDim * MAX_EXTRA_RATIO;
+            const dashWidth = Math.max(3, minDim * DASH_WIDTH_RATIO);
 
             ctx.clearRect(0, 0, w, h);
 
@@ -187,28 +241,21 @@ export default function AudioVisualizer() {
             }
 
             const angleStep = (Math.PI * 2) / NUM_RAYS;
-            const barWidth = (2 * Math.PI * innerRadius) / (NUM_RAYS * 2);
-
-            ctx.fillStyle = BAR_COLOR;
+            const targetMix = isPlayingRef.current ? 1 : 0;
+            ringMix.current += (targetMix - ringMix.current) * (reduceMotion ? 1 : 0.08);
+            const m = ringMix.current;
+            const lerp = (a: number, b: number) => Math.round(a + (b - a) * m);
+            ctx.fillStyle = `rgb(${lerp(IDLE_RGB[0], ACTIVE_RGB[0])}, ${lerp(IDLE_RGB[1], ACTIVE_RGB[1])}, ${lerp(IDLE_RGB[2], ACTIVE_RGB[2])})`;
 
             for (let i = 0; i < NUM_RAYS; i++) {
                 const angle = i * angleStep - Math.PI / 2;
-                const freqValue = freqData ? freqData[i % freqData.length] / 255 : 0;
-                const barHeight = maxBarHeight * freqValue;
-
-                if (barHeight < 0.5) continue;
+                const freqValue = freqData ? freqData[(i * 2) % freqData.length] / 255 : 0;
+                const length = idleLength + maxExtra * freqValue;
 
                 ctx.save();
                 ctx.translate(cx, cy);
                 ctx.rotate(angle);
-
-                const halfW = barWidth / 2;
-                const r = Math.min(halfW, barHeight / 2);
-
-                ctx.beginPath();
-                ctx.roundRect(-halfW, -innerRadius - barHeight, barWidth, barHeight, r);
-                ctx.fill();
-
+                ctx.fillRect(-dashWidth / 2, -innerRadius - length, dashWidth, length);
                 ctx.restore();
             }
         };
@@ -221,24 +268,14 @@ export default function AudioVisualizer() {
         };
     }, []);
 
+    useEffect(() => { isPlayingRef.current = isPlaying; }, [isPlaying]);
+
     // Volume sync
     useEffect(() => {
         if (gainRef.current) {
             gainRef.current.gain.value = volume;
         }
     }, [volume]);
-
-    // Arrow position animation
-    useEffect(() => {
-        const activeBtn = buttonRefs.current[currentAudioIndex];
-        const arrow = arrowRef.current;
-        if (activeBtn && arrow) {
-            const btnRect = activeBtn.getBoundingClientRect();
-            const parentRect = activeBtn.parentElement!.getBoundingClientRect();
-            const offset = btnRect.top - parentRect.top + btnRect.height / 2 - 16;
-            gsap.to(arrow, { top: offset, duration: 0.4, ease: "power2.out" });
-        }
-    }, [currentAudioIndex]);
 
     // Cleanup audio on unmount
     useEffect(() => {
@@ -259,94 +296,92 @@ export default function AudioVisualizer() {
         );
     }, [hasStartedTest]);
 
+    const toggleTest = () => {
+        if (!hasStartedTest) setHasStartedTest(true);
+        if (!bufferRef.current) {
+            playAudio(currentAudioIndex, false).then(() => startPlayback());
+            return;
+        }
+        if (isPlaying) pausePlayback();
+        else startPlayback();
+    };
+
+    const modeList = (
+        <div className="flex flex-col">
+            <p className="flex items-center gap-2 font-suisse-regular text-[17px] tracking-[-0.03em] text-[#808080] mb-9">
+                <span className="size-1 rounded-full bg-[#808080]" aria-hidden /> Mode
+            </p>
+            <div className="flex flex-col gap-5 ml-[13px]">
+                {audioFiles.map((track, idx) => {
+                    const active = idx === currentAudioIndex;
+                    return (
+                        <button
+                            key={track.name}
+                            type="button"
+                            onClick={() => playAudio(idx, isPlaying)}
+                            aria-pressed={active}
+                            className={`group flex items-center gap-4 cursor-pointer text-left motion-safe:transition-[filter,opacity,translate] motion-safe:duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${active
+                                ? 'blur-0 opacity-100 translate-x-0'
+                                : 'blur-[1.2px] opacity-75 -translate-x-1 hover:blur-[0.3px] hover:opacity-100'}`}
+                        >
+                            <span className="relative flex items-center justify-center w-[55px] h-[46px] shrink-0 text-[25px] text-black">
+                                <ModeBrackets active={active} />
+                                <span className={`motion-safe:transition-all motion-safe:duration-500 ${active ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`}>{track.icon}</span>
+                            </span>
+                            <span className={`font-suisse-regular text-xl xl:text-2xl uppercase tracking-[-0.04em] transition-colors duration-500 ${active ? 'text-black' : 'text-[#c4c4c4] group-hover:text-[#9a9a9a]'}`}>
+                                {track.name}
+                            </span>
+                        </button>
+                    );
+                })}
+            </div>
+        </div>
+    );
+
     return (
         <>
-        <div className="relative -mt-18 min-h-[100dvh] lg:min-h-screen 2xl:min-h-[85vh] bg-white flex flex-col lg:flex-row justify-center items-end rounded-t-[2rem] md:rounded-t-[4rem]">
-            <div ref={mountRef} className="absolute inset-0 h-[57dvh]" >
-                <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
-                <Image className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2' src="/Images/logo.png" alt="Logo" width={90} height={90} />
-            </div>
-            <div className='flex flex-col items-center lg:items-end justify-center gap-8 mt-[57dvh] w-full h-full max-w-[1440px]'>
-                <div className="lg:flex flex-col hidden lg:absolute left-1/2 -translate-x-1/2 lg:-translate-0 lg:left-20 top-1/2 lg:-translate-y-1/2">
-                    <div
-                        ref={arrowRef}
-                        className='absolute top-5 -left-5 size-8 pointer-events-none z-10 rotate-180'
-                    >
-                        <svg width="24" height="24" viewBox="0 0 32 32">
-                            <polygon
-                                points="0,16 32,0 32,32"
-                                fill="#ff6633"
-                            >
-                                <animate
-                                    attributeName="points"
-                                    dur="0.4s"
-                                    values="0,16 32,0 32,32; 0,16 32,4 32,28; 0,16 32,0 32,32"
-                                    repeatCount="1"
-                                    fill="freeze"
-                                />
-                            </polygon>
-                        </svg>
+        <div className="relative -mt-18 bg-white rounded-t-[2.5rem] md:rounded-t-[6.5rem]">
+          {/* Full width with the same side padding as the other home sections. */}
+          <div className="relative w-full px-6 md:px-16 lg:px-20 pt-10 md:pt-[93px] pb-12 lg:pb-16">
+            <SectionChip>Self Assessment</SectionChip>
+
+            <div className="grid grid-cols-1 lg:grid-cols-[313fr_auto_358fr] items-start gap-y-10 mt-6 lg:mt-[2px] xl:pl-[40px]">
+                {/* Left: mode list (desktop) */}
+                <div className="hidden lg:block pt-[133px]">
+                    {modeList}
+                </div>
+
+                {/* Centre: ring, card, CTA */}
+                <div className="flex flex-col items-center">
+                    <div ref={mountRef} className="relative w-[300px] h-[300px] md:w-[400px] md:h-[400px] xl:w-[452px] xl:h-[452px]">
+                        <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" aria-hidden />
                     </div>
-                    {audioFiles.map((track, idx) => (
-                        <div
-                            key={idx}
-                            ref={el => { buttonRefs.current[idx] = el; }}
-                            className="flex items-center"
-                        >
-                            <AudioButton
-                                className={`px-6 py-2 md:py-3 rounded ${idx === currentAudioIndex ? ' text-black' : ' text-gray-400'}`}
+
+                    {/* Title block (mobile / tablet) */}
+                    <div className="lg:hidden flex flex-col items-center text-center gap-4 mt-6">
+                        <Copy animateOnScroll={true} delay={0.2}>
+                            <h2 className="text-[1.9rem] leading-[1.05] tracking-[-0.03em] font-suisse-medium">It Starts With<br />A Hearing Test</h2>
+                        </Copy>
+                        <p className="text-[#808080] text-lg leading-snug tracking-[-0.03em] font-suisse-regular max-w-[260px]">Check the health of your ears with a click of a button.</p>
+                        <VolumeControl volume={volume} onChange={setVolume} />
+                    </div>
+
+                    {/* Mode switcher (mobile / tablet) */}
+                    <div className="lg:hidden flex flex-wrap justify-center gap-x-6 gap-y-3 mt-8">
+                        {audioFiles.map((track, idx) => (
+                            <button
+                                key={track.name}
+                                type="button"
                                 onClick={() => playAudio(idx, isPlaying)}
-                                text={track.name}
+                                aria-pressed={idx === currentAudioIndex}
+                                className={`font-suisse-regular text-base uppercase tracking-[-0.03em] cursor-pointer ${idx === currentAudioIndex ? 'text-black underline decoration-primary underline-offset-8' : 'text-[#bdbdbd]'}`}
                             >
-                                <div className={`rounded-lg flex justify-center items-center transition-all duration-300
-                                ${idx === currentAudioIndex ? 'bg-primary text-white size-8 md:size-12 text-xl md:text-3xl' : 'bg-gray-200 size-7 md:size-11  text-lg md:text-2xl'}`}>
-                                    {idx === currentAudioIndex ? track.icon : null}
-                                </div>
-                            </AudioButton>
-                        </div>
-                    ))}
-                </div>
-                <div className='flex md:hidden flex-col items-center justify-center space-y-3'>
-                    <Copy animateOnScroll={true} delay={0.2}>
-                        <h2 className='text-2xl lg:text-3xl font-suisse-book'>It Starts With a Hearing Test</h2>
-                    </Copy>
-                    <input
-                        type="range"
-                        min={0}
-                        max={1}
-                        step={0.01}
-                        value={volume}
-                        onChange={(e) => setVolume(parseFloat(e.target.value))}
-                        className="w-64 h-3 rounded-full bg-gradient-to-r from-white via-primary/80 to-primary appearance-none
-                        hover:cursor-pointer
-                        accent-transparent
-                        [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-md
-                        [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:shadow-md"
-                    />
-                    <p className='text-gray-400 text-2xl font-suisse-regular text-center'>Volume</p>
-                </div>
+                                {track.name}
+                            </button>
+                        ))}
+                    </div>
 
-                <div className="hidden md:flex flex-col absolute right-18 top-1/2 -translate-y-1/2 max-w-xs space-y-6">
-                    <h2 className='text-5xl font-suisse-book'>It Starts With a Hearing Test</h2>
-                    <p className='text-gray-400 text-2xl font-suisse-regular'>Check the health of your ears with a click of a button.</p>
-                    <input
-                        type="range"
-                        min={0}
-                        max={1}
-                        step={0.01}
-                        value={volume}
-                        onChange={(e) => setVolume(parseFloat(e.target.value))}
-                        className="w-64 h-3 rounded-full bg-gradient-to-r from-white via-primary/80 to-primary appearance-none
-                    hover:cursor-pointer
-                    accent-transparent
-                    [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-md
-                    [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:shadow-md"
-                    />
-                    <p className='text-gray-400 text-2xl font-suisse-regular'>Volume</p>
-                </div>
-
-                <div className="flex flex-col items-center gap-4 mx-auto">
-                    <div>
+                    <div className="flex flex-col items-center gap-7 mt-8 lg:mt-12 w-full">
                         {audioFiles.map(({ description, icon, name }, idx) => {
                             if (idx !== currentAudioIndex) return null;
                             return (
@@ -358,67 +393,51 @@ export default function AudioVisualizer() {
                                 />
                             )
                         })}
-                    </div>
-                    <div className="flex lg:hidden gap-4">
                         <Button
-                            variant='sm'
-                            mode='iconOnly'
-                            icon={
-                                <svg width="24" height="24" fill="#fff"><path d="M15 6l-6 6 6 6" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                            }
-                            className="bg-gray-200 hover:bg-primary/80 text-black rounded-full p-3 transition"
-                            onClick={() => {
-                                const prevIdx = (currentAudioIndex - 1 + audioFiles.length) % audioFiles.length;
-                                playAudio(prevIdx, isPlaying);
-                            }}
-                            aria-label="Previous"
-                        />
-                        <Button
-                            variant='sm'
-                            mode='iconOnly'
-                            icon={
-                                <svg width="24" height="24" fill="#fff"><path d="M9 6l6 6-6 6" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                            }
-                            className="bg-gray-200 hover:bg-primary/80 text-black rounded-full p-3 transition"
-                            onClick={() => {
-                                const nextIdx = (currentAudioIndex + 1) % audioFiles.length;
-                                playAudio(nextIdx, isPlaying);
-                            }}
-                            aria-label="Next"
-                        />
-                    </div>
-                    <Button
-                        variant='lg'
-                        mode='default'
-                        className='w-full'
-                        onClick={() => {
-                            if (!hasStartedTest) setHasStartedTest(true);
-                            if (!bufferRef.current) {
-                                playAudio(0, false).then(() => startPlayback());
-                                return;
-                            }
-                            if (isPlaying) pausePlayback();
-                            else startPlayback();
-                        }}
-                    >
-                        {isPlaying ? 'Stop Testing' : 'Test My Hearing'}
-                    </Button>
+                            variant='lg'
+                            mode='default'
+                            className='w-full max-w-[265px] !rounded-[1.4rem] !py-0 h-[56px] md:h-[62px] !text-xl md:!text-[1.4rem] tracking-[-0.02em]'
+                            onClick={toggleTest}
+                        >
+                            {isPlaying ? 'Stop Testing' : 'Test My Hearing'}
+                        </Button>
 
-                    <button
-                        ref={quickBtnRef}
-                        onClick={() => setQuizOpen(true)}
-                        className="cursor-pointer flex items-center gap-2 text-sm font-suisse-regular text-gray-400 hover:text-black transition-colors"
-                        style={{ opacity: 0 }}
-                        aria-label="Open quick hearing assessment"
-                    >
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M12 2a5 5 0 015 5c0 3-2 5-4 6.5V17a1 1 0 01-1 1h-2a1 1 0 01-1-1v-3.5C7 12 5 10 5 7a7 7 0 017-5z" />
-                            <path d="M10 21h4" />
-                        </svg>
-                        Take a quick assessment
-                    </button>
+                        <button
+                            ref={quickBtnRef}
+                            onClick={() => setQuizOpen(true)}
+                            className="cursor-pointer -mt-2 flex items-center gap-2 text-sm font-suisse-regular text-gray-400 hover:text-black transition-colors"
+                            style={{ opacity: 0 }}
+                            aria-label="Open quick hearing assessment"
+                        >
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M12 2a5 5 0 015 5c0 3-2 5-4 6.5V17a1 1 0 01-1 1h-2a1 1 0 01-1-1v-3.5C7 12 5 10 5 7a7 7 0 017-5z" />
+                                <path d="M10 21h4" />
+                            </svg>
+                            Take a quick assessment
+                        </button>
+                    </div>
+                </div>
+
+                {/* Right: title, copy, volume (desktop) */}
+                <div className="hidden lg:flex flex-col items-start lg:ml-auto pt-[133px] pl-10 xl:pr-[36px]">
+                    <Copy animateOnScroll={true} delay={0.2}>
+                        <h2 className="text-[1.9rem] xl:text-[2.25rem] leading-[1.03] tracking-[-0.03em] font-suisse-medium">It Starts With<br />A Hearing Test</h2>
+                    </Copy>
+                    <p className="mt-3 text-[#808080] text-[1.15rem] xl:text-[1.31rem] leading-[1.18] tracking-[-0.03em] font-suisse-regular max-w-[240px]">Check the health of your ears with a click of a button.</p>
+                    <div className="mt-[11px] w-full">
+                        <VolumeControl volume={volume} onChange={setVolume} />
+                    </div>
                 </div>
             </div>
+
+            <a
+                href="#services"
+                aria-label="Scroll to services"
+                className="hidden lg:flex absolute right-20 xl:right-[116px] top-[842px] items-center justify-center size-[37px] rounded-full border border-primary text-primary hover:bg-primary hover:text-white transition-colors"
+            >
+                <svg width="16" height="10" viewBox="0 0 16 10" fill="none" aria-hidden><path d="M1 1l7 7 7-7" stroke="currentColor" strokeWidth="1.5" /></svg>
+            </a>
+          </div>
         </div>
 
         <HearingQuiz isOpen={quizOpen} onClose={() => setQuizOpen(false)} />

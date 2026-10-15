@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Button } from "@/components/ui/Button";
 
 const services = [
     {
@@ -10,11 +9,10 @@ const services = [
         // Narrow screens can't fit "Advanced Hearing-aids" on one line.
         mobileTitle: "Advanced Hearing-\naids And\nDiagnostic Device",
         description:
-            "Our advanced hearing aid services include assessment, fitting, and ongoing support using modern digital technology. We offer a wide range of devices, from discreet in-ear options to powerful behind-the-ear models, all designed for comfort, clarity, and real-world listening. With features like noise reduction, Bluetooth connectivity, and adaptive sound settings, each device is carefully customized and fine-tuned by our specialists to match the individual’s unique hearing needs.",
+            "Our advanced hearing aid portfolio combines cutting-edge technology with expert customization. From discreet in-ear devices to powerful behind-the-ear models, each solution is designed for comfort, clarity, and real-world listening. Features like noise reduction, Bluetooth connectivity, and adaptive sound settings ensure a seamless experience, while our specialists fine-tune every device to each person’s unique hearing needs.",
         highlights: [
-            "noise reduction",
-            "Bluetooth connectivity, and adaptive sound settings",
-            "Features like noise reduction, Bluetooth connectivity",
+            "From discreet in-ear devices to powerful behind-the-ear models,",
+            "Features like noise reduction, Bluetooth connectivity, and adaptive sound settings",
         ],
         cta: { label: "View Products", href: "/" },
         images: ["/Images/about/a1.jpg", "/Images/about/path-device.jpg"],
@@ -22,18 +20,16 @@ const services = [
     {
         title: "Speech Therapy",
         description:
-            "Our speech therapy and rehabilitation programs help individuals communicate more clearly and confidently by focusing on speaking, listening, and comprehension skills. Through personalized sessions tailored to each person’s progress, we provide continuous guidance and auditory training for all ages, making everyday communication more natural, effective, and comfortable.",
-        highlights: ["speaking", "listening", "comprehension skills"],
+            "Our speech therapy helps people communicate more clearly and confidently. We work on speaking, understanding, and listening skills through personalized guidance. Each session is tailored to your progress, with ongoing support to make everyday communication easier and more natural.",
+        highlights: [],
         cta: null,
         images: ["/Images/about/speech.jpg", "/Images/about/speech2.jpeg"],
     },
     {
-        title: "Hearing Aid Fitting\n& Maintenance",
+        title: "Hearing Aid Fitting &\nMaintenance",
         description:
-            "Our hearing aid fitting and maintenance services begin with detailed hearing assessments and precise device programming to match real-life listening needs. Each device is carefully adjusted for optimal clarity, comfort, and natural sound, while regular follow-ups, checkups, cleaning, and fine-tuning ensure long-term performance and reliability with the support of skilled specialists and modern tools.",
+            "Our fitting and maintenance process begins with detailed hearing testing and precise device programming to match real listening needs. Each hearing aid is carefully adjusted for clarity, comfort, and natural sound. Through regular followups & checkups, cleaning, and fine tuning, we protect long term performance. With modern tools and skilled specialists, we ensure every device continues to deliver reliable results.",
         highlights: [
-            "detailed hearing assessments and precise device programming",
-            "Each device is carefully adjusted for optimal clarity, comfort, and natural sound",
             "Through regular followups & checkups, cleaning, and fine tuning, we protect long term performance.",
         ],
         cta: null,
@@ -42,7 +38,7 @@ const services = [
     {
         title: "Cochlear Implants",
         description:
-            "We provide comprehensive cochlear implant solutions for individuals with severe hearing loss, starting with thorough evaluations and continuing through surgical placement by specialists and precise programming tailored to each user. With ongoing follow-up and mapping sessions, we ensure optimal performance and help individuals reconnect with sound, speech, and their surroundings.",
+            "We provide cochlear implant solutions for individuals with severe hearing loss who benefit from advanced auditory technology. Each implant is carefully assessed, surgically placed by specialists, and programmed to match the wearer’s hearing profile. Ongoing follow-up and mapping sessions ensure optimal performance, helping clients reconnect with sounds, speech, and the world around them.",
         highlights: [],
         cta: null,
         images: ["/Images/about/cochlear1.jpg", "/Images/about/cochlear2.jpg"],
@@ -99,128 +95,71 @@ const renderHighlightedDescription = (text: string, highlights: string[]) => {
 
 const OurCoreServices = () => {
     return (
-        <section className="w-full bg-background py-16 px-6 md:px-16 lg:px-24">
+        <section id="services" className="w-full bg-background pt-16 md:pt-24 pb-24 md:pb-32 px-2 md:px-[6.2rem] max-w-[1440px] mx-auto">
             {/* Header — top right */}
-            <div className="flex justify-end items-center gap-3 mb-16">
-                <div>
-                    <h2 className="font-suisse-bold text-white text-right text-lg md:text-xl leading-tight">
-                        Our Services
-                    </h2>
-                    <p className="font-suisse-regular text-gray-400 text-sm md:text-base">
-                        We provide complete hearing solutions across every stage of care
-                    </p>
-                </div>
-                    <div className="w-3 h-10 bg-primary shrink-0 mt-0.5" />
+            <div className="flex justify-end items-center gap-7 mb-12 md:mb-[3.6rem]">
+                <h2 className="font-suisse-medium text-[2rem] md:text-[2.4rem] tracking-[-0.03em] text-[#f2f2f2]">
+                    Our Core Services
+                </h2>
+                <div className="w-3.5 h-[30px] bg-primary shrink-0" />
             </div>
 
             {/* Service blocks */}
-            <div className="flex flex-col max-w-6xl ml-auto">
+            <div className="flex flex-col max-w-[973px] ml-auto gap-20 md:gap-[5.6rem]">
                 {services.map((service, i) => (
-                    <div
-                        key={i}
-                        className="pt-12 pb-16"
-                    >
-                        {/* Title + description row */}
-                        <div className="mb-8 items-start">
-                            {/* Title col */}
-                            <div className="relative pl-4 pt-4 pb-6 md:pb-4">
-                                <div className="w-max relative">
-                                    {/* top-left bracket */}
-                                    <span className="absolute -top-3 -left-6 size-4 md:size-8 border-t-2 border-l-2 border-primary" />
-                                    {/* bottom-right bracket */}
-                                    <span className="absolute -bottom-3 -right-6 size-4 md:size-8 border-b-2 border-r-2 border-primary" />
-                                    <h3 className="font-suisse-bold text-white relative text-3xl md:text-4xl lg:text-5xl leading-tight whitespace-pre-line">
-                                        {"mobileTitle" in service && service.mobileTitle ? (
-                                            <>
-                                                <span className="md:hidden">{service.mobileTitle}</span>
-                                                <span className="hidden md:inline">{service.title}</span>
-                                            </>
-                                        ) : (
-                                            service.title
-                                        )}
-                                    </h3>
-                                </div>
-                            </div>
-
-                            {/* Description col */}
-                            <div className="flex flex-col gap-6 justify-center md:w-[51%] md:ml-auto md:pt-4">
-                                <p className="font-suisse-light text-gray-400 text-sm md:text-base leading-relaxed">
-                                    {renderHighlightedDescription(service.description, service.highlights)}
-                                </p>
-                                {service.cta && (
-                                    <div className="flex justify-end">
-                                        <Link href={service.cta.href}>
-                                            <Button variant="md" mode="default" className="bg-transparent border-primary border">
-                                                {service.cta.label}
-                                            </Button>
-                                        </Link>
-                                    </div>
+                    <div key={i}>
+                        {/* Title in a bracket frame */}
+                        <div className="relative w-full md:w-max md:min-w-[453px] min-h-[96px] md:min-h-[120px] pl-5 pt-4 md:pl-[1.4rem] md:pt-[0.9rem] pr-6 md:pr-16 pb-5 md:pb-8">
+                            <span className="absolute top-0 left-0 size-4 md:size-[18px] border-t border-l border-primary" />
+                            <span className="absolute bottom-0 right-0 size-4 md:size-[18px] border-b border-r border-primary" />
+                            <h3 className="font-suisse-bold text-[#f2f2f2] text-[1.9rem] md:text-[2.7rem] leading-[1.08] tracking-[-0.035em] whitespace-pre-line">
+                                {"mobileTitle" in service && service.mobileTitle ? (
+                                    <>
+                                        <span className="md:hidden">{service.mobileTitle}</span>
+                                        <span className="hidden md:inline">{service.title}</span>
+                                    </>
+                                ) : (
+                                    service.title
                                 )}
-                            </div>
+                            </h3>
+                        </div>
+
+                        {/* Description */}
+                        <div className="flex flex-col gap-6 md:w-[51%] md:ml-auto mt-6 md:mt-[1.6rem]">
+                            <p className={`font-suisse-medium text-sm md:text-[15.4px] leading-[1.39] tracking-[-0.02em] ${service.highlights.length ? "text-[#b7b7b7]" : "text-[#cccccc]"}`}>
+                                {renderHighlightedDescription(service.description, service.highlights)}
+                            </p>
+                            {service.cta && (
+                                <div className="flex justify-end">
+                                    <Link
+                                        href={service.cta.href}
+                                        className="inline-flex items-center h-10 px-5 rounded-[0.85rem] border border-primary font-suisse-medium text-[#f2f2f2] text-lg md:text-[20.5px] tracking-[-0.03em] hover:bg-primary transition-colors"
+                                    >
+                                        {service.cta.label}
+                                    </Link>
+                                </div>
+                            )}
                         </div>
 
                         {/* Images row */}
-                        <div className="grid grid-cols-2 gap-3 md:gap-8">
+                        <div className="grid grid-cols-2 gap-3 md:gap-[38px] mt-10 md:mt-[2.9rem] md:pl-[23px]">
                             {service.images.map((src, j) => (
                                 <div
                                     key={j}
-                                    className="relative w-full aspect-square overflow-hidden bg-white/5"
+                                    className="relative w-full aspect-[456/415] overflow-hidden bg-white/5"
                                 >
                                     <Image
                                         src={src}
-                                        alt={`${service.title} image ${j + 1}`}
+                                        alt={`${service.title.replace("\n", " ")} image ${j + 1}`}
                                         fill
                                         className="object-cover"
-                                        sizes="(max-width: 768px) 50vw, 40vw"
+                                        sizes="(max-width: 768px) 50vw, 460px"
                                     />
                                 </div>
                             ))}
                         </div>
                     </div>
                 ))}
-            </div>
-
-            {/* ── Why Choose Us ─────────────────────────────────────────── */}
-            <div className="max-w-6xl ml-auto mt-8 pt-12 border-t border-white/10">
-                <div className="flex items-start gap-3 mb-10">
-                    <div className="w-3 h-5 bg-primary shrink-0 mt-0.5" />
-                    <h2 className="font-suisse-bold text-white text-lg md:text-xl leading-tight">
-                        Why Choose Us
-                    </h2>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8">
-                    {[
-                        "Patient-centered, family-focused care",
-                        "Experienced multidisciplinary team",
-                        "Advanced diagnostic and rehabilitation services",
-                        "Continuous follow-up and long-term support",
-                    ].map((item, i) => (
-                        <div key={i} className="relative pl-4 py-4 pr-6 w-max">
-                            <span className="absolute top-0 left-0 w-4 h-4 border-t border-l border-primary/70" />
-                            <span className="absolute bottom-0 right-0 w-4 h-4 border-b border-r border-primary/70" />
-                            <p className="font-suisse-regular text-white text-sm md:text-xl font-bold uppercase leading-relaxed">
-                                {item}
-                            </p>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* ── Start Your Hearing Journey ────────────────────────────── */}
-            <div className="max-w-6xl ml-auto mt-20 pb-4">
-                <div className="relative pl-4 pt-4 pb-6">
-                    <div className="w-max relative">
-                        <h3 className="font-suisse-bold text-white text-3xl md:text-4xl lg:text-5xl leading-tight">
-                            Start Your Hearing<br />Journey Today
-                        </h3>
-                    </div>
-                </div>
-                <div className="md:w-[51%] md:ml-auto mt-6">
-                    <p className="font-suisse-light text-gray-400 text-sm md:text-base leading-relaxed">
-                        Better hearing begins with the right care. Whether you need a hearing aid, cochlear implant support, or speech therapy, our team is here to help every step of the way.
-                    </p>
-                </div>
             </div>
         </section>
     );

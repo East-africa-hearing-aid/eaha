@@ -74,105 +74,78 @@ function TestimonialModal({
     );
 }
 
-const avatars = [
-    "/Images/Testimonial/1.jpg",
-    "/Images/Testimonial/2.jpg",
-    "/Images/Testimonial/03.jpg",
-    "/Images/Testimonial/afomia.jpg",
+const heroAvatars = [
     "/Images/Testimonial/tigist.jpg",
-    "/Images/Testimonial/kid.jpg",
+    "/Images/Testimonial/afomia.jpg",
+    "/Images/Testimonial/03.jpg",
 ];
 
-interface CardProps {
-    name: string;
-    text: string;
-    src?: string;
-    age?: number;
-    blur?: boolean;
-    delay?: number;
-    onClick?: () => void;
-}
+/* ── Card ──────────────────────────────────────────────────────────── */
+const Brackets = ({ size = "w-6 h-6" }: { size?: string }) => (
+    <>
+        <span className={`absolute top-0 left-0 ${size} border-t border-l border-primary`} />
+        <span className={`absolute top-0 right-0 ${size} border-t border-r border-primary`} />
+        <span className={`absolute bottom-0 left-0 ${size} border-b border-l border-primary`} />
+        <span className={`absolute bottom-0 right-0 ${size} border-b border-r border-primary`} />
+    </>
+);
 
-function TestimonialCard({ name, text, src, blur, onClick }: CardProps) {
-    return (
-        <div
-            onClick={!blur ? onClick : undefined}
-            className={`relative bg-transparent p-4 transition-all duration-300
-                ${blur ? "opacity-20 blur-[2px] pointer-events-none select-none" : "cursor-pointer group hover:bg-white/5 rounded-xl"}`}
-        >
-            {/* Corner brackets */}
-            <span className="absolute top-0 left-0 w-5 h-5 border-t-2 border-l-2 border-primary" />
-            <span className="absolute bottom-0 right-0 w-5 h-5 border-b-2 border-r-2 border-primary" />
+const Avatar = ({ item, size }: { item: Testimonial; size: number }) => (
+    <div className="rounded-full overflow-hidden flex-shrink-0 bg-white/10 flex items-center justify-center" style={{ width: size, height: size }}>
+        {item.src ? (
+            <Image src={item.src} alt={item.alt ?? item.name} width={size * 2} height={size * 2} className="object-cover w-full h-full grayscale" />
+        ) : (
+            <span className="text-white/60 text-sm font-suisse-medium uppercase">{item.name ? item.name.charAt(0) : "·"}</span>
+        )}
+    </div>
+);
 
-            <div className="flex items-center gap-3 mb-3">
-                {src ? (
-                    <div className="w-14 h-14 rounded-full overflow-hidden flex-shrink-0">
-                        <Image
-                            src={src}
-                            alt={name}
-                            width={56}
-                            height={56}
-                            className="object-cover w-full h-full"
-                        />
-                    </div>
-                ) : (
-                    <div className="w-14 h-14 rounded-full bg-white/10 flex-shrink-0 flex items-center justify-center">
-                        <span className="text-white/60 text-sm font-suisse-medium uppercase">
-                            {name ? name.charAt(0) : ''}
-                        </span>
-                    </div>
-                )}
+function TestimonialCard({ item, blur, onClick }: { item: Testimonial; blur?: boolean; onClick?: () => void }) {
+    if (blur) {
+        return (
+            <div aria-hidden className="w-full blur-[3px] opacity-45 pointer-events-none select-none">
+                <Avatar item={item} size={30} />
+                <p className="mt-2 text-[#cccccc] text-[10px] font-suisse-medium leading-tight line-clamp-3">{item.text}</p>
+                <p className="mt-2 text-[#999] text-[11px] font-suisse-regular">{item.name}</p>
             </div>
-
-            <p className="text-white text-sm font-suisse-light leading-relaxed mb-3 line-clamp-3">
-                &ldquo;{text}&rdquo;
+        );
+    }
+    return (
+        <button
+            type="button"
+            onClick={onClick}
+            className="group relative block w-full text-left px-[1.15rem] pt-7 pb-3 cursor-pointer"
+        >
+            <Brackets />
+            <Avatar item={item} size={50} />
+            <p className="mt-5 text-[#cccccc] group-hover:text-white transition-colors text-base md:text-[16.4px] font-suisse-medium leading-[1.2] tracking-[-0.02em] line-clamp-3">
+                {item.text}
             </p>
-
-            <p className="text-white/60 text-xs font-suisse-regular">
-                {name || 'Anonymous'}
+            <p className="mt-3 pl-1 text-[#999999] text-lg md:text-[18.3px] font-suisse-regular tracking-[-0.02em]">
+                -&nbsp; {item.name || "Anonymous"}
             </p>
-        </div>
+        </button>
     );
 }
 
-const cardData = [
-    { ...testimonials[0]},
-    { ...testimonials[13]},
-    { ...testimonials[1]},
-    { ...testimonials[2]},
-    { ...testimonials[11]},
-    { ...testimonials[4]},
-    { ...testimonials[10]},
-    { ...testimonials[12]},
-    { ...testimonials[7]},
-    // { ...testimonials[11]},
-    // { ...testimonials[10]},
+/* ── Layout: positions measured from the design (1366px-wide canvas) ── */
+type Placed = { x: number; y: number; t: number; blur?: boolean };
+const SCATTER: Placed[] = [
+    { x: 262, y: 37, t: 5, blur: true },
+    { x: 690, y: 27, t: 2 },
+    { x: 1210, y: 75, t: 9, blur: true },
+    { x: 69, y: 123, t: 10 },
+    { x: 775, y: 260, t: 4, blur: true },
+    { x: 193, y: 420, t: 6, blur: true },
+    { x: 1134, y: 403, t: 8, blur: true },
+    { x: 612, y: 414, t: 11 },
+    { x: 36, y: 567, t: 0 },
+    { x: 655, y: 692, t: 3, blur: true },
+    { x: 1148, y: 787, t: 7, blur: true },
+    { x: 223, y: 877, t: 12, blur: true },
+    { x: 658, y: 868, t: 1 },
 ];
-
-// Column layout: [col index, row within col, blur]
-const layout: { col: number; blur: boolean }[][] = [
-    // Row 0
-    [
-        { col: 0, blur: true },
-        { col: 1, blur: false },
-        { col: 2, blur: true },
-        { col: 3, blur: false },
-    ],
-    // Row 1
-    [
-        { col: 0, blur: false },
-        { col: 1, blur: true },
-        { col: 2, blur: false },
-        { col: 3, blur: true },
-    ],
-    // Row 2
-    [
-        { col: 0, blur: true },
-        { col: 1, blur: false },
-        { col: 2, blur: true },
-        { col: 3, blur: false },
-    ],
-];
+const unit = (v: number) => `calc(${v} * min(100vw, 1440px) / 1366)`;
 
 export default function TestimonialsContent() {
     const heroRef = useRef<HTMLDivElement>(null);
@@ -182,43 +155,28 @@ export default function TestimonialsContent() {
 
     useEffect(() => {
         gsap.registerPlugin(ScrollTrigger);
+        const triggers: ScrollTrigger[] = [];
 
-        // Animate the vertical line growing down
         if (lineRef.current) {
             gsap.fromTo(
                 lineRef.current,
                 { scaleY: 0, transformOrigin: "top center" },
-                {
-                    scaleY: 1,
-                    duration: 1.2,
-                    ease: "power2.out",
-                    delay: 0.8,
-                }
+                { scaleY: 1, duration: 1.2, ease: "power2.out", delay: 0.8 }
             );
         }
 
-        // Animate hero text
         if (heroRef.current) {
             const els = heroRef.current.querySelectorAll(".hero-anim");
             gsap.fromTo(
                 els,
                 { y: 30, opacity: 0 },
-                {
-                    y: 0,
-                    opacity: 1,
-                    duration: 0.9,
-                    stagger: 0.15,
-                    ease: "power3.out",
-                    delay: 0.2,
-                }
+                { y: 0, opacity: 1, duration: 0.9, stagger: 0.15, ease: "power3.out", delay: 0.2 }
             );
         }
 
-        // Animate cards on scroll
         if (cardsRef.current) {
-            const cards = cardsRef.current.querySelectorAll(".testimonial-card");
-            cards.forEach((card) => {
-                gsap.fromTo(
+            cardsRef.current.querySelectorAll(".testimonial-card").forEach((card) => {
+                const tween = gsap.fromTo(
                     card,
                     { y: 40, opacity: 0 },
                     {
@@ -226,138 +184,82 @@ export default function TestimonialsContent() {
                         opacity: 1,
                         duration: 0.7,
                         ease: "power2.out",
-                        scrollTrigger: {
-                            trigger: card,
-                            start: "top 88%",
-                            toggleActions: "play none none none",
-                        },
+                        scrollTrigger: { trigger: card, start: "top 92%", toggleActions: "play none none none" },
                     }
                 );
+                if (tween.scrollTrigger) triggers.push(tween.scrollTrigger);
             });
         }
 
-        return () => {
-            ScrollTrigger.getAll().forEach((t) => t.kill());
-        };
+        return () => { triggers.forEach((t) => t.kill()); };
     }, []);
 
-    // Build flat list of cards from layout rows
-    const rows = layout.map((row, rowIdx) =>
-        row.map((cell, cellIdx) => {
-            const cardIdx = rowIdx * 4 + cellIdx;
-            const card = cardData[cardIdx % cardData.length];
-            return { ...card, blur: cell.blur, key: `${rowIdx}-${cellIdx}` };
-        })
-    );
+    const clearCards = SCATTER.filter((c) => !c.blur);
 
     return (
-        <main className="min-h-screen bg-black">
+        <main className="min-h-screen bg-black overflow-hidden">
             {selected && (
                 <TestimonialModal item={selected} onClose={() => setSelected(null)} />
             )}
+
             {/* ─── Hero ─────────────────────────────────────────────── */}
-            <section
-                ref={heroRef}
-                className="flex flex-col items-center text-center pt-28 pb-0 px-6"
-            >
-                {/* Avatars row */}
-                <div className="hero-anim flex items-center mb-4">
-                    <div className="flex -space-x-2">
-                        {avatars.map((src, i) => (
-                            <div
-                                key={i}
-                                className="w-9 h-9 rounded-full overflow-hidden border-2 border-black"
-                                style={{ zIndex: avatars.length - i }}
-                            >
-                                <Image
-                                    src={src}
-                                    alt="patient"
-                                    width={36}
-                                    height={36}
-                                    className="object-cover w-full h-full grayscale"
-                                />
+            <section ref={heroRef} className="flex flex-col items-center text-center pt-36 md:pt-[14.8rem] px-6">
+                <div className="hero-anim flex items-center gap-5 mb-1">
+                    <div className="flex">
+                        {heroAvatars.map((src, i) => (
+                            <div key={src} className="size-10 rounded-full overflow-hidden" style={{ zIndex: heroAvatars.length - i }}>
+                                <Image src={src} alt="" width={80} height={80} className="object-cover w-full h-full grayscale" />
                             </div>
                         ))}
                     </div>
-                    <p className="ml-4 text-white/50 text-xs font-suisse-light text-left leading-snug max-w-[180px]">
+                    <p className="text-[#808080] text-[13px] font-suisse-mono text-left leading-[1.3] tracking-[-0.02em]">
                         From quiet voices to busy streets.<br />
                         Our patients share what they hear now.
                     </p>
                 </div>
 
-                {/* Main heading */}
-                <h1 className="hero-anim font-suisse-bold text-white text-4xl md:text-6xl lg:text-7xl leading-tight max-w-3xl">
+                <h1 className="hero-anim font-suisse-bold text-white text-[2.8rem] md:text-[4.35rem] leading-[1.1] tracking-[-0.04em]">
                     Everyday Sounds,<br />Back in Focus!
                 </h1>
 
-                {/* Subheading */}
-                <p className="hero-anim mt-5 text-white/50 text-sm md:text-base font-suisse-light max-w-lg leading-relaxed">
+                <p className="hero-anim mt-6 text-[#cccccc] text-sm md:text-[16.9px] font-suisse-medium leading-[1.17] tracking-[-0.02em]">
                     Real people sharing how conversations stopped slipping away.<br />
                     From family talks to phone calls and meetings.<br />
                     No guessing. No pretending. Just hearing what matters.
                 </p>
 
-                {/* Vertical connector line */}
-                <div className="hero-anim flex flex-col items-center mt-10 mb-0">
-                    <div className="w-[2px] h-1 rounded-full bg-white/40" />
-                    <div
-                        ref={lineRef}
-                        className="w-[1px] h-20 bg-white/30 origin-top"
-                    />
-                    <div className="w-2 h-2 rounded-full bg-white/40" />
+                {/* Vertical connector line with a dot at each end */}
+                <div className="hero-anim flex flex-col items-center mt-16">
+                    <span className="size-[7px] rounded-full bg-white" />
+                    <div ref={lineRef} className="w-px h-[110px] bg-white origin-top" />
+                    <span className="size-[7px] rounded-full bg-white" />
                 </div>
             </section>
 
-            {/* ─── Scattered cards grid ─────────────────────────────── */}
-            <section ref={cardsRef} className="pb-24 pt-8">
-                {/* Mobile: single column, non-blurred only */}
-                <div className="md:hidden flex flex-col gap-4 px-4">
-                    {rows.flat().filter(card => !card.blur).map((card) => (
-                        <div key={card.key} className="testimonial-card">
-                            <TestimonialCard
-                                name={card.name}
-                                text={card.text}
-                                src={card.src}
-                                blur={false}
-                                onClick={() => setSelected(card)}
-                            />
+            {/* ─── Scattered cards ──────────────────────────────────── */}
+            <section ref={cardsRef} className="pt-16 lg:pt-[5.5rem] pb-24">
+                {/* Mobile / tablet: simple list */}
+                <div className="lg:hidden grid grid-cols-1 md:grid-cols-2 gap-8 px-6 max-w-3xl mx-auto">
+                    {clearCards.map((c) => (
+                        <div key={`${c.x}-${c.y}`} className="testimonial-card">
+                            <TestimonialCard item={testimonials[c.t]} onClick={() => setSelected(testimonials[c.t])} />
                         </div>
                     ))}
                 </div>
 
-                {/* Desktop: staggered 4-col grid */}
-                <div className="hidden md:block px-10">
-                {rows.map((row, rowIdx) => (
-                    <div
-                        key={rowIdx}
-                        className="grid grid-cols-4 gap-4 mb-4"
-                        style={{
-                            marginTop: rowIdx % 2 === 1 ? "2rem" : "0",
-                        }}
-                    >
-                        {row.map((card, colIdx) => {
-                            // Stagger vertical offset per column
-                            const offsets = [0, 40, 16, 56];
-                            const offset = offsets[colIdx % offsets.length];
-                            return (
-                                <div
-                                    key={card.key}
-                                    className="testimonial-card"
-                                    style={{ marginTop: `${offset}px` }}
-                                >
-                                    <TestimonialCard
-                                        name={card.name}
-                                        text={card.text}
-                                        src={card.src}
-                                        blur={card.blur}
-                                        onClick={() => setSelected(card)}
-                                    />
-                                </div>
-                            );
-                        })}
-                    </div>
-                ))}
+                {/* Desktop: scattered canvas */}
+                <div className="hidden lg:block relative mx-auto w-full max-w-[1440px]" style={{ height: unit(1080) }}>
+                    {SCATTER.map((c) => (
+                        <div
+                            key={`${c.x}-${c.y}`}
+                            className={`absolute ${c.blur ? "" : "testimonial-card"}`}
+                            style={{ left: unit(c.x), top: unit(c.y), width: c.blur ? unit(210) : unit(358) }}
+                        >
+                            <TestimonialCard item={testimonials[c.t]} blur={c.blur} onClick={() => setSelected(testimonials[c.t])} />
+                        </div>
+                    ))}
                 </div>
+
             </section>
         </main>
     );
